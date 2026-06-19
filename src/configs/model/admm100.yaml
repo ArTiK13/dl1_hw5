@@ -1,0 +1,8 @@
+_target_: src.model.LenslessReconstructionModel
+method: admm100
+admm_iterations: 100
+trainable_admm: false
+mu1: 0.0001
+mu2: 0.0001
+mu3: 0.0001
+tau: 0.0002

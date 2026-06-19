@@ -1,0 +1,10 @@
+_target_: src.model.LenslessReconstructionModel
+method: modular_post_only
+admm_iterations: 5
+trainable_admm: true
+preprocessor: null
+postprocessor: post8
+mu1: 0.0001
+mu2: 0.0001
+mu3: 0.0001
+tau: 0.0002
