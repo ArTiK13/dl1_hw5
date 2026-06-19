@@ -108,7 +108,9 @@ wandb/
 .cometml-runs/
 outputs/
 checkpoints/
-report_assets/
+analysis/report_assets/
+lensless_dataset/
+lensless_dataset.zip
 
 # editor, os cache directory
 .vscode/
