@@ -107,6 +107,8 @@ saved/
 wandb/
 .cometml-runs/
 outputs/
+checkpoints/
+report_assets/
 
 # editor, os cache directory
 .vscode/
