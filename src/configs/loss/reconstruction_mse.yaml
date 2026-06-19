@@ -1,0 +1,3 @@
+_target_: src.loss.ReconstructionLoss
+mse_weight: 1.0
+lpips_weight: 0.0
