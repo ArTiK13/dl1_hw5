@@ -1,18 +1,19 @@
 defaults:
   - model: admm100
   - metrics: reconstruction
-  - datasets: digicam_eval
-  - dataloader: digicam
+  - datasets: custom_dir
+  - dataloader: digicam_onebatch
   - transforms: lensless
   - _self_
 inferencer:
   device_tensors: ["measurement", "target", "psf"]
   device: auto
-  save_path: "digicam_reconstructions"
+  save_path: "custom_reconstructions"
   seed: 42
   from_pretrained: null
   skip_model_load: true
   compute_metrics: true
 dataloader:
+  batch_size: 1
   shuffle: false
   drop_last: false

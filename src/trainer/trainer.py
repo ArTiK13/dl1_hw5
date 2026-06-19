@@ -1,5 +1,6 @@
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
+from src.utils.io_utils import tensor_to_uint8_image
 
 
 class Trainer(BaseTrainer):
@@ -7,7 +8,7 @@ class Trainer(BaseTrainer):
     Trainer class. Defines the logic of batch logging and processing.
     """
 
-    def process_batch(self, batch, metrics: MetricTracker):
+    def process_batch(self, batch, metrics: MetricTracker, batch_idx=None):
         """
         Run batch through the model, compute metrics, compute loss,
         and do training step (during training stage).
@@ -31,8 +32,12 @@ class Trainer(BaseTrainer):
 
         metric_funcs = self.metrics["inference"]
         if self.is_train:
-            metric_funcs = self.metrics["train"]
-            self.optimizer.zero_grad()
+            metric_funcs = []
+            if batch_idx is None or batch_idx % self.log_step == 0:
+                metric_funcs = self.metrics["train"]
+            accumulation_steps = self.config.trainer.get("accumulation_steps", 1)
+            if batch_idx is None or batch_idx % accumulation_steps == 0:
+                self.optimizer.zero_grad()
 
         outputs = self.model(**batch)
         batch.update(outputs)
@@ -41,11 +46,18 @@ class Trainer(BaseTrainer):
         batch.update(all_losses)
 
         if self.is_train:
-            batch["loss"].backward()  # sum of all losses is always called loss
-            self._clip_grad_norm()
-            self.optimizer.step()
-            if self.lr_scheduler is not None:
-                self.lr_scheduler.step()
+            accumulation_steps = self.config.trainer.get("accumulation_steps", 1)
+            (batch["loss"] / accumulation_steps).backward()
+            should_step = (
+                batch_idx is None
+                or (batch_idx + 1) % accumulation_steps == 0
+                or (batch_idx + 1) >= self.epoch_len
+            )
+            if should_step:
+                self._clip_grad_norm()
+                self.optimizer.step()
+                if self.lr_scheduler is not None:
+                    self.lr_scheduler.step()
 
         # update metrics for each loss (in case of multiple losses)
         for loss_name in self.config.writer.loss_names:
@@ -67,13 +79,8 @@ class Trainer(BaseTrainer):
             mode (str): train or inference. Defines which logging
                 rules to apply.
         """
-        # method to log data from you batch
-        # such as audio, text or images, for example
-
-        # logging scheme might be different for different partitions
-        if mode == "train":  # the method is called only every self.log_step steps
-            # Log Stuff
-            pass
-        else:
-            # Log Stuff
-            pass
+        if self.writer is None:
+            return
+        for name in ("measurement", "target", "prediction", "admm_output"):
+            if name in batch:
+                self.writer.add_image(f"{name}_{batch_idx}", tensor_to_uint8_image(batch[name][0]))

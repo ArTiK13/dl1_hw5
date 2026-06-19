@@ -45,6 +45,10 @@ def set_random_seed(seed):
     os.environ["PYTHONHASHSEED"] = str(seed)
 
 
+def constant_lr_lambda():
+    return lambda _: 1.0
+
+
 # https://github.com/wandb/wandb/blob/main/wandb/sdk/lib/runid.py
 def generate_id(length: int = 8) -> str:
     """

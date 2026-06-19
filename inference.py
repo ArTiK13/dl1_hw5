@@ -37,8 +37,9 @@ def main(config):
     model = instantiate(config.model).to(device)
     print(model)
 
-    # get metrics
-    metrics = instantiate(config.metrics)
+    metrics = None
+    if config.inferencer.get("compute_metrics", True):
+        metrics = instantiate(config.metrics)
 
     # save_path for model predictions
     save_path = ROOT_PATH / "data" / "saved" / config.inferencer.save_path
@@ -52,7 +53,7 @@ def main(config):
         batch_transforms=batch_transforms,
         save_path=save_path,
         metrics=metrics,
-        skip_model_load=False,
+        skip_model_load=config.inferencer.get("skip_model_load", False),
     )
 
     logs = inferencer.run_inference()

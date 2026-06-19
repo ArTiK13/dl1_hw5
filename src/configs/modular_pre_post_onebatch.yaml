@@ -1,0 +1,23 @@
+defaults:
+  - modular_pre_post
+  - override /datasets: digicam_onebatch
+  - override /dataloader: digicam_onebatch
+  - override /loss: reconstruction_mse
+  - _self_
+trainer:
+  log_step: 1
+  image_log_period: 25
+  n_epochs: 300
+  epoch_len: null
+  monitor: "min val_loss"
+  early_stop: 0
+  eval_period: 1
+  save_period: 50
+  override: true
+  accumulation_steps: 1
+  max_grad_norm: 1.0
+optimizer:
+  lr: 0.0005
+  admm_lr: 0.1
+writer:
+  run_name: "modular_pre_post_onebatch"

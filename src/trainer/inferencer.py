@@ -3,6 +3,7 @@ from tqdm.auto import tqdm
 
 from src.metrics.tracker import MetricTracker
 from src.trainer.base_trainer import BaseTrainer
+from src.utils.io_utils import save_tensor_png
 
 
 class Inferencer(BaseTrainer):
@@ -126,29 +127,11 @@ class Inferencer(BaseTrainer):
             for met in self.metrics["inference"]:
                 metrics.update(met.name, met(**batch))
 
-        # Some saving logic. This is an example
-        # Use if you need to save predictions on disk
-
-        batch_size = batch["logits"].shape[0]
-        current_id = batch_idx * batch_size
-
+        batch_size = batch["prediction"].shape[0]
         for i in range(batch_size):
-            # clone because of
-            # https://github.com/pytorch/pytorch/issues/1995
-            logits = batch["logits"][i].clone()
-            label = batch["labels"][i].clone()
-            pred_label = logits.argmax(dim=-1)
-
-            output_id = current_id + i
-
-            output = {
-                "pred_label": pred_label,
-                "label": label,
-            }
-
+            image_id = batch["id"][i] if "id" in batch else f"{batch_idx:06d}_{i:02d}"
             if self.save_path is not None:
-                # you can use safetensors or other lib here
-                torch.save(output, self.save_path / part / f"output_{output_id}.pth")
+                save_tensor_png(batch["prediction"][i], self.save_path / part / f"{image_id}.png")
 
         return batch
 
@@ -166,7 +149,8 @@ class Inferencer(BaseTrainer):
         self.is_train = False
         self.model.eval()
 
-        self.evaluation_metrics.reset()
+        if self.evaluation_metrics is not None:
+            self.evaluation_metrics.reset()
 
         # create Save dir
         if self.save_path is not None:
@@ -185,4 +169,6 @@ class Inferencer(BaseTrainer):
                     metrics=self.evaluation_metrics,
                 )
 
+        if self.evaluation_metrics is None:
+            return {}
         return self.evaluation_metrics.result()

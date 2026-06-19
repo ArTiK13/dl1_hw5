@@ -1,0 +1,6 @@
+defaults:
+  - leadmm20
+  - override /model: modular_pre_only
+  - _self_
+writer:
+  run_name: "modular_pre_only"

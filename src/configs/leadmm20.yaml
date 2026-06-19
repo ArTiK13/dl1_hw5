@@ -1,0 +1,41 @@
+defaults:
+  - model: leadmm20
+  - writer: cometml
+  - metrics: reconstruction
+  - datasets: digicam
+  - dataloader: digicam
+  - transforms: lensless
+  - loss: reconstruction
+  - _self_
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.0001
+  admm_lr: 0.1
+  betas: [0.9, 0.999]
+  weight_decay: 0
+lr_scheduler:
+  _target_: torch.optim.lr_scheduler.LambdaLR
+  lr_lambda:
+    _target_: src.utils.init_utils.constant_lr_lambda
+loss_function: ${loss}
+trainer:
+  log_step: 100
+  image_log_step: 500
+  image_log_period: 2
+  n_epochs: 25
+  epoch_len: 4000
+  device_tensors: ["measurement", "target", "psf"]
+  resume_from: null
+  from_pretrained: null
+  device: auto
+  override: false
+  monitor: "max val_PSNR"
+  save_period: 1000
+  early_stop: 20
+  eval_period: 1
+  save_dir: "saved"
+  seed: 42
+  accumulation_steps: 4
+writer:
+  project_name: "hw5-lensless-computational-imaging"
+  run_name: "leadmm20"
