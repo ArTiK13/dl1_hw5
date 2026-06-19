@@ -1,0 +1,20 @@
+train:
+  _target_: src.datasets.DigiCamDataset
+  dataset_name: bezzam/DigiCam-Mirflickr-MultiMask-10K
+  split: train
+  cache_dir: data/cache/digicam/hf
+  mask_cache_dir: data/cache/digicam/masks
+  psf_cache_dir: data/cache/digicam/psf
+  validation_fraction: 0.05
+  validation_part: train
+  validation_seed: 42
+val:
+  _target_: src.datasets.DigiCamDataset
+  dataset_name: bezzam/DigiCam-Mirflickr-MultiMask-10K
+  split: train
+  cache_dir: data/cache/digicam/hf
+  mask_cache_dir: data/cache/digicam/masks
+  psf_cache_dir: data/cache/digicam/psf
+  validation_fraction: 0.05
+  validation_part: val
+  validation_seed: 42

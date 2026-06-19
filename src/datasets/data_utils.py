@@ -75,12 +75,13 @@ def get_dataloaders(config, device):
             f"be larger than the dataset length ({len(dataset)})"
         )
 
+        is_train = dataset_partition == "train"
         partition_dataloader = instantiate(
             config.dataloader,
             dataset=dataset,
             collate_fn=collate_fn,
-            drop_last=(dataset_partition == "train"),
-            shuffle=(dataset_partition == "train"),
+            drop_last=config.dataloader.get("drop_last", is_train) if is_train else False,
+            shuffle=config.dataloader.get("shuffle", is_train) if is_train else False,
             worker_init_fn=set_worker_seed,
         )
         dataloaders[dataset_partition] = partition_dataloader

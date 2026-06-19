@@ -1,0 +1,6 @@
+test:
+  _target_: src.datasets.CustomDirDataset
+  root_dir: data/custom
+  mask_is_psf: false
+  limit: null
+  indices: null
