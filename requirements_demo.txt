@@ -1,0 +1,12 @@
+torch
+torchvision
+torchmetrics
+lpips
+gdown
+hydra-core
+huggingface_hub
+datasets
+pandas
+Pillow
+matplotlib
+waveprop
